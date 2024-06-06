@@ -5,4 +5,4 @@ from typing import List, Union, Tuple, Callable
 
 def make_multiplier(multiplier: float) -> Callable[[float], float]:
     '''concat func'''
-    return lambda multiplier: multiplier * multiplier
+    return lambda x: x * multiplier
