@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 '''test parameters'''
 import unittest
-from utils import access_nested_map, get_json, memoize
+from typing import Dict, Tuple, Union
+from unittest.mock import patch, Mock
 from parameterized import parameterized
-from unittest import mock
-from unittest.mock import patch
+
+from utils import (
+    access_nested_map,
+    get_json,
+    memoize,
+)
 
 
 class TestAccessNestedMap(unittest.TestCase):
