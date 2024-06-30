@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 '''test parameters'''
-import unittest
-from utils import access_nested_map, get_json, memoize
 from client import GithubOrgClient
-from parameterized import parameterized
-from typing import Dict, Tuple, Union
-from unittest import mock
-from unittest.mock import patch, Mock, MagicMock, PropertyMock
+from fixtures import TEST_PAYLOAD
+from parameterized import parameterized, parameterized_class
+import json
+import unittest
+from unittest.mock import patch, PropertyMock, Mock
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    @parameterized.expand([("google"), ("abc")])
-    @patch('client.get_json')
-    def test_org(self, org_name, mock_get_json):
-        instance = GithubOrgClient(org_name)
-        instance.org()
-        mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
+    """ Class for Testing Github Org Client """
 
+    @parameterized.expand([
+        ('google'),
+        ('abc')
+    ])
+    @patch('client.get_json')
+    def test_org(self, input, mock):
+        """Test that GithubOrgClient.org returns the correct value"""
+        test_class = GithubOrgClient(input)
+        test_class.org()
+        mock.assert_called_once_with(f'https://api.github.com/orgs/{input}')
 
     def test_public_repos_url(self):
         """ Test that the result of _public_repos_url is the expected one
