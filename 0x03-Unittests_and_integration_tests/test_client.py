@@ -51,62 +51,57 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(GithubOrgClient.has_license(repo,
                                                      license_key), expected_result)
 
+@parameterized_class(
+    ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
+    TEST_PAYLOAD
+)
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """Integration tests for GithubOrgClient using mock fixtures"""
+    """ Class for Integration test of fixtures """
 
     @classmethod
     def setUpClass(cls):
-        """Set up mock for requests.get"""
-        cls.org_payload = org_payload
-        cls.repos_payload = repos_payload
-        cls.expected_repos = expected_repos
-        cls.apache2_repos = apache2_repos
-        
-        # Mock requests.get with different side_effects
-        cls.get_patcher = patch('requests.get')
-        cls.mock_get = cls.get_patcher.start()
-        cls.mock_get.side_effect = [
-            MockResponse(cls.org_payload),   # Mocking requests.get for org payload
-            MockResponse(cls.repos_payload), # Mocking requests.get for repos payload
-            MockResponse(cls.org_payload),   # Mocking requests.get for org payload again
-            MockResponse(cls.repos_payload)  # Mocking requests.get for repos payload again
-        ]
+        """A class method called before tests in an individual class are run"""
+        # def my_side_effect(url):
+        #     """ Side Effect function for test """
+        #     test_url = "https://api.github.com/orgs/google"
+        #     if url == test_url:
+        #         return cls.org_payload
+        #     return cls.repos_payload
+
+        config = {'return_value.json.side_effect':
+                  [
+                      cls.org_payload, cls.repos_payload,
+                      cls.org_payload, cls.repos_payload
+                  ]
+                  }
+        cls.get_patcher = patch('requests.get', **config)
+
+        cls.mock = cls.get_patcher.start()
 
     def test_public_repos(self):
-        """Test public_repos method without license filter"""
-        # Create an instance of GithubOrgClient
-        instance = GithubOrgClient('google')
-        
-        # Assertions
-        self.assertEqual(instance.org(), self.org_payload)
-        self.assertEqual(instance.repos_payload(), self.repos_payload)
-        self.assertEqual(instance.public_repos(), self.expected_repos)
-        self.assertEqual(instance.public_repos("XLICENSE"), [])
-        self.mock_get.assert_called()
+        """ Integration test: public repos"""
+        test_class = GithubOrgClient("google")
+
+        self.assertEqual(test_class.org, self.org_payload)
+        self.assertEqual(test_class.repos_payload, self.repos_payload)
+        self.assertEqual(test_class.public_repos(), self.expected_repos)
+        self.assertEqual(test_class.public_repos("XLICENSE"), [])
+        self.mock.assert_called()
 
     def test_public_repos_with_license(self):
-        """Test public_repos method with license filter"""
-        # Create an instance of GithubOrgClient
-        instance = GithubOrgClient('google')
-        
-        # Assertions
-        self.assertEqual(instance.public_repos(), self.expected_repos)
-        self.assertEqual(instance.public_repos("XLICENSE"), [])
-        self.assertEqual(instance.public_repos("apache-2.0"), self.apache2_repos)
-        self.mock_get.assert_called()
+        """ Integration test for public repos with License """
+        test_class = GithubOrgClient("google")
+
+        self.assertEqual(test_class.public_repos(), self.expected_repos)
+        self.assertEqual(test_class.public_repos("XLICENSE"), [])
+        self.assertEqual(test_class.public_repos(
+            "apache-2.0"), self.apache2_repos)
+        self.mock.assert_called()
 
     @classmethod
     def tearDownClass(cls):
-        """Tear down the mock"""
+        """A class method called after tests in an individual class have run"""
         cls.get_patcher.stop()
-
-# Helper class to mock requests.get().json() responses
-class MockResponse:
-    def __init__(self, json_data):
-        self.json_data = json_data
-    
-    def json(self):
-        return self.json_data
 
 if __name__ == '__main__':
     unittest.main()
