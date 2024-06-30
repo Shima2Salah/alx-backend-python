@@ -9,9 +9,11 @@ from unittest.mock import patch, PropertyMock, Mock
 
 
 class TestGithubOrgClient(unittest.TestCase):
+    """ Class for Testing Github Org Client """
     @parameterized.expand([("google"), ("abc")])
     @patch('client.get_json')
     def test_org(self, org_name, mock_get_json):
+        """Test that GithubOrgClient.org"""
         instance = GithubOrgClient(org_name)
         instance.org()
         mock_get_json.assert_called_once_with(
