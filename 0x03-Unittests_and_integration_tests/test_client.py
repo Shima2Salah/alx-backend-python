@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 '''test parameters'''
-import unittest
-from utils import access_nested_map, get_json, memoize
-from typing import Dict, Tuple, Union
-from unittest import mock
 from client import GithubOrgClient
 from fixtures import TEST_PAYLOAD
 from parameterized import parameterized, parameterized_class
